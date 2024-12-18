@@ -120,5 +120,4 @@ Di modul ini, kita telah:
 - Membuat aplikasi Flask pertama yang menampilkan "Hello, World!".
 - Menggunakan template HTML untuk merender halaman web.
 
-### Homepage
 [Back to main](https://github.com/rohmanurnr/learn-flask/tree/main)

@@ -162,8 +162,4 @@ Pada modul ini, kita telah:
 - Membuat respons HTTP kustom.
 - Menggunakan pengalihan dan URL dinamis.
 
-### Homepage
-[Back to main](https://github.com
-rohmanurnr/learn-flask/tree/main)om/### Homepage
-[Back to main](https://github.com
-rohmanurnr/learn-flask/tree/main)
+[Back to main](https://github.com/rohmanurnr/learn-flask/tree/main)
