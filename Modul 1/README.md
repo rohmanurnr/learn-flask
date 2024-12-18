@@ -1,5 +1,3 @@
-# learn-flask
-
 ## **Modul 1: Flask Fundamentals**
 
 ### **1.1 Apa Itu Flask?**
@@ -147,3 +145,5 @@ Pada modul pertama ini, kita telah membahas:
 - Cara menginstal dan membuat aplikasi Flask sederhana
 - Penggunaan route dan HTTP methods
 - Cara merender template HTML menggunakan Jinja2
+
+- [Back to main](https://github.com/rohmanurnr/learn-flask/tree/main)
