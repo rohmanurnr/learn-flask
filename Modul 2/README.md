@@ -1,153 +1,169 @@
-## **Modul 2: Handling Files in Flask**
+## Modul 2: Routing, HTTP Request & Response, dan URL Parameters
 
-### **2.1 Apa itu File Handling di Flask?**
+#### 2.1 Routing dan HTTP Methods
 
-**File handling** di Flask merujuk pada proses menerima dan memproses file yang diupload pengguna melalui form HTML. Flask menyediakan fasilitas untuk menangani file dengan mudah, termasuk pengunggahan file dan validasi jenis file.
+Flask memungkinkan kita untuk mendefinisikan rute aplikasi menggunakan dekorator `@app.route()`. Selain itu, kita juga dapat menentukan metode HTTP yang digunakan untuk suatu rute, seperti `GET`, `POST`, `PUT`, atau `DELETE`.
 
-Pada aplikasi web, pengguna sering kali perlu mengirimkan file (misalnya, file CSV untuk analisis data) kepada server. Flask memberikan API sederhana untuk menangani file ini menggunakan objek `request`.
-
-### **2.2 Instalasi dan Persiapan**
-
-Sebelum kita mulai menangani file di Flask, pastikan Anda sudah menginstal Flask dan mempersiapkan aplikasi seperti yang telah kita lakukan pada modul sebelumnya.
-
-Untuk memproses file CSV atau Excel di Flask, kita juga membutuhkan beberapa pustaka tambahan:
-
-- **Werkzeug**: Flask sudah dilengkapi dengan `Werkzeug`, yang digunakan untuk menangani file upload.
-- **Pandas**: Untuk memproses file CSV atau Excel, kita akan menggunakan `Pandas`, yang memudahkan pembacaan dan manipulasi data.
-  
-Install Pandas dengan:
-```bash
-pip install pandas
-```
-
-### **2.3 Membuat Form untuk Mengunggah File**
-
-Langkah pertama adalah membuat form HTML untuk memungkinkan pengguna mengunggah file. Berikut adalah contoh form HTML yang menerima file:
-
-```html
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Upload File</title>
-</head>
-<body>
-    <h1>Upload File CSV</h1>
-    <form action="/upload" method="POST" enctype="multipart/form-data">
-        <label for="file">Pilih file CSV:</label>
-        <input type="file" name="file" id="file" accept=".csv,.xlsx">
-        <button type="submit">Upload</button>
-    </form>
-</body>
-</html>
-```
-
-Form di atas mengirimkan file ke route Flask menggunakan metode POST. Attribut `enctype="multipart/form-data"` diperlukan untuk mengunggah file.
-
-### **2.4 Menangani File Upload di Flask**
-
-Di Flask, kita dapat menggunakan objek `request.files` untuk mengakses file yang diunggah. Berikut adalah cara menangani file yang diunggah dari form di atas:
-
-1. **Membuat Route untuk Mengunggah File**
-   
-   Di dalam file `app.py`, buat route untuk menangani form dan file upload:
-   
-   ```python
-   from flask import Flask, request, render_template
-   import os
-
-   app = Flask(__name__)
-
-   # Tentukan direktori untuk menyimpan file yang diupload
-   UPLOAD_FOLDER = 'uploads'
-   app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-   app.config['ALLOWED_EXTENSIONS'] = {'csv', 'xlsx'}
-
-   # Fungsi untuk memeriksa apakah ekstensi file diizinkan
-   def allowed_file(filename):
-       return '.' in filename and filename.rsplit('.', 1)[1].lower() in app.config['ALLOWED_EXTENSIONS']
-
-   @app.route('/')
-   def upload_form():
-       return render_template('upload.html')  # Menampilkan form upload
-
-   @app.route('/upload', methods=['POST'])
-   def upload_file():
-       if 'file' not in request.files:
-           return 'No file part'
-       file = request.files['file']
-       if file.filename == '':
-           return 'No selected file'
-       if file and allowed_file(file.filename):
-           # Menyimpan file ke folder uploads
-           filename = os.path.join(app.config['UPLOAD_FOLDER'], file.filename)
-           file.save(filename)
-           return f'File uploaded successfully: {filename}'
-       else:
-           return 'Invalid file type. Only CSV and Excel files are allowed.'
-   
-   if __name__ == "__main__":
-       app.run(debug=True)
-   ```
-
-2. **Menyimpan File yang Diupload**
-
-   Di atas, kita menyimpan file yang diupload ke dalam folder `uploads` (pastikan folder ini ada di direktori yang sama dengan aplikasi Flask Anda). Nama file disusun menggunakan `os.path.join()` untuk membuat path lengkap.
-
-3. **Validasi Ekstensi File**
-
-   Fungsi `allowed_file()` digunakan untuk memastikan bahwa hanya file dengan ekstensi yang diperbolehkan (CSV atau Excel) yang dapat diunggah.
-
-### **2.5 Menampilkan Pesan Setelah Mengunggah File**
-
-Setelah file berhasil diunggah, Anda bisa menampilkan pesan yang mengonfirmasi bahwa file telah berhasil disimpan. Anda juga bisa melanjutkan dengan memproses file tersebut, misalnya, membaca isi file CSV menggunakan Pandas.
-
-### **2.6 Membaca File CSV dengan Pandas**
-
-Jika file yang diunggah adalah file CSV, Anda bisa menggunakan Pandas untuk membaca dan memprosesnya. Berikut adalah contoh cara membaca file CSV setelah diunggah:
-
+**Contoh Routing dengan Metode HTTP:**
 ```python
-import pandas as pd
+from flask import Flask
 
-@app.route('/upload', methods=['POST'])
-def upload_file():
-    if 'file' not in request.files:
-        return 'No file part'
-    file = request.files['file']
-    if file.filename == '':
-        return 'No selected file'
-    if file and allowed_file(file.filename):
-        filename = os.path.join(app.config['UPLOAD_FOLDER'], file.filename)
-        file.save(filename)
-        
-        # Membaca file CSV menggunakan Pandas
-        if filename.endswith('.csv'):
-            data = pd.read_csv(filename)
-            return f'File uploaded successfully. Data head:\n{data.head()}'
-        else:
-            return 'File type is not CSV'
+app = Flask(__name__)
+
+# Route dengan metode GET (default)
+@app.route('/')
+def home():
+    return "Hello, this is the Home page!"
+
+# Route dengan metode POST
+@app.route('/submit', methods=['POST'])
+def submit():
+    return "Form submitted successfully!"
+
+if __name__ == '__main__':
+    app.run(debug=True)
 ```
 
-Setelah file disimpan, kita menggunakan `pd.read_csv()` untuk membaca file dan menampilkan beberapa baris pertama dari data.
+**Penjelasan:**
+- Rute `/` akan menangani permintaan dengan metode `GET` secara default.
+- Rute `/submit` hanya akan menangani permintaan dengan metode `POST`.
 
-### **2.7 Menangani File Excel**
+#### 2.2 HTTP Request
 
-Untuk file Excel, Anda bisa menggunakan `pd.read_excel()` untuk membaca data dari file `.xlsx`:
+Flask menyediakan objek `request` untuk mengakses data yang dikirimkan oleh klien melalui HTTP request. Data tersebut bisa berupa data formulir (form), data JSON, file, atau parameter URL.
 
+**Contoh Mengakses Data Formulir (POST):**
 ```python
-if filename.endswith('.xlsx'):
-    data = pd.read_excel(filename)
-    return f'File uploaded successfully. Data head:\n{data.head()}'
+from flask import Flask, request
+
+app = Flask(__name__)
+
+@app.route('/submit', methods=['POST'])
+def submit():
+    name = request.form['name']
+    email = request.form['email']
+    return f"Name: {name}, Email: {email}"
+
+if __name__ == '__main__':
+    app.run(debug=True)
 ```
 
----
+**Penjelasan:**
+- `request.form` digunakan untuk mengambil data dari formulir HTML yang dikirimkan dengan metode `POST`.
 
-### **Kesimpulan**
+#### 2.3 URL Parameters
 
-Pada modul ini, kita telah membahas:
-- Cara membuat form HTML untuk mengunggah file.
-- Menangani file yang diupload menggunakan Flask dengan objek `request.files`.
-- Menyimpan file di server menggunakan Python dan Flask.
-- Membaca dan memproses file CSV atau Excel dengan Pandas.
+Kadang-kadang kita perlu menangani data yang dikirimkan melalui URL. Flask memungkinkan kita untuk menangani parameter URL menggunakan sintaks `<parameter>` di dalam rute.
 
-- [Back to main](https://github.com/rohmanurnr/learn-flask/tree/main)
+**Contoh Menangani URL Parameter:**
+```python
+from flask import Flask
+
+app = Flask(__name__)
+
+@app.route('/greet/<name>')
+def greet(name):
+    return f"Hello, {name}!"
+
+if __name__ == '__main__':
+    app.run(debug=True)
+```
+
+**Penjelasan:**
+- Pada rute `/greet/<name>`, `<name>` adalah parameter URL yang akan diteruskan ke fungsi `greet()`.
+- Jika kamu mengunjungi `http://127.0.0.1:5000/greet/Alice`, maka outputnya adalah `Hello, Alice!`.
+
+#### 2.4 Menggunakan Jenis Parameter URL yang Lain
+
+Flask memungkinkan kita untuk menetapkan jenis parameter yang lebih spesifik, seperti integer, string, atau path.
+
+**Contoh Parameter dengan Tipe Spesifik:**
+```python
+from flask import Flask
+
+app = Flask(__name__)
+
+# Integer parameter
+@app.route('/user/<int:id>')
+def user(id):
+    return f"User ID is {id}"
+
+# String parameter (default, tapi eksplisit)
+@app.route('/product/<string:name>')
+def product(name):
+    return f"Product name is {name}"
+
+# Path parameter (mengizinkan slashes di dalam parameter)
+@app.route('/files/<path:filename>')
+def files(filename):
+    return f"File name is {filename}"
+
+if __name__ == '__main__':
+    app.run(debug=True)
+```
+
+**Penjelasan:**
+- `<int:id>`: Parameter `id` harus berupa integer.
+- `<string:name>`: Parameter `name` harus berupa string.
+- `<path:filename>`: Parameter `filename` memungkinkan pengambilan path yang mengandung tanda garis miring `/`.
+
+#### 2.5 HTTP Response
+
+Flask juga memberikan kita kemampuan untuk mengontrol respons yang dikirimkan ke klien. Fungsi rute dapat mengembalikan string, objek `Response`, atau template HTML yang dirender.
+
+**Contoh Menggunakan Response:**
+```python
+from flask import Flask, Response
+
+app = Flask(__name__)
+
+@app.route('/')
+def home():
+    return Response("Custom response text", status=200)
+
+if __name__ == '__main__':
+    app.run(debug=True)
+```
+
+**Penjelasan:**
+- Di sini kita membuat respons kustom menggunakan objek `Response`, yang memungkinkan kita mengatur status HTTP secara eksplisit dan menentukan isi respons.
+
+#### 2.6 Redirect dan URL For
+
+Flask juga menyediakan dua fungsi penting untuk mengelola pengalihan (redirect) dan URL dinamis: `redirect()` dan `url_for()`.
+
+**Contoh Redirect:**
+```python
+from flask import Flask, redirect, url_for
+
+app = Flask(__name__)
+
+@app.route('/')
+def home():
+    return redirect(url_for('greet', name='Alice'))
+
+@app.route('/greet/<name>')
+def greet(name):
+    return f"Hello, {name}!"
+
+if __name__ == '__main__':
+    app.run(debug=True)
+```
+
+**Penjelasan:**
+- Fungsi `redirect()` digunakan untuk mengarahkan pengguna ke rute lain.
+- Fungsi `url_for()` digunakan untuk menghasilkan URL dinamis berdasarkan nama rute.
+
+#### 2.7 Kesimpulan Modul 2
+Pada modul ini, kita telah:
+- Mempelajari routing dan metode HTTP (`GET`, `POST`).
+- Mengakses data dari HTTP request, seperti data formulir.
+- Menangani URL parameter menggunakan Flask.
+- Membuat respons HTTP kustom.
+- Menggunakan pengalihan dan URL dinamis.
+
+### Homepage
+[Back to main](https://github.com
+rohmanurnr/learn-flask/tree/main)om/### Homepage
+[Back to main](https://github.com
+rohmanurnr/learn-flask/tree/main)
